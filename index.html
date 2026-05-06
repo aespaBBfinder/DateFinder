@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bubble Date Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Pretendard', sans-serif;
+      background: #f5f5f5;
+    }
+
+    .container {
+      padding: 16px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* 수정된 로고: 그라데이션 및 돋보기 아이콘 */
+    .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #C88DDD, #9CEAFE);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .logo::after {
+      content: "";
+      width: 18px;
+      height: 18px;
+      background-color: white;
+      /* 돋보기 아이콘 모양 (SVG mask 사용) */
+      -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+      mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+    }
+
+    .lang-btn {
+      background: black;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .members {
+      background: #e0e0e0;
+      border-radius: 30px;
+      padding: 4px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .members button {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 8px 0;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .members .active {
+      background: white;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: black;
+      border-radius: 30px;
+      padding: 6px 16px;
+      margin-bottom: 16px;
+      gap: 5px;
+      position: relative;
+    }
+
+    .calendar-icon {
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+      margin-right: 5px;
+    }
+
+    #hiddenDateInput {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .search-box select {
+      background: transparent;
+      color: white;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .date-separator {
+      color: #777;
+      font-size: 14px;
+    }
+
+    .search-btn {
+      background: #ddd;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+
+    .result {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 30px 20px;
+      text-align: center;
+      margin-bottom: 24px;
+      min-height: 40px;
+      font-size: 18px;
+    }
+
+    .image-text {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 40px;
+      text-align: center;
+      color: #333;
+    }
+
+    .footer {
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+
+    .support-link {
+      color: #555;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="title">
+      <div class="logo"></div>
+      <span id="titleText">aespa bubble date finder</span>
+    </div>
+    <button class="lang-btn" onclick="toggleLang()">KR / EN</button>
+  </div>
+
+  <div class="members">
+    <button onclick="selectMember(this)" class="active" data-en="Karina" data-ko="카리나">Karina</button>
+    <button onclick="selectMember(this)" data-en="Giselle" data-ko="지젤">Giselle</button>
+    <button onclick="selectMember(this)" data-en="Winter" data-ko="윈터">Winter</button>
+    <button onclick="selectMember(this)" data-en="Ningning" data-ko="닝닝">Ningning</button>
+  </div>
+
+  <div class="search-box">
+    <span class="calendar-icon" onclick="openCalendar()">📅</span>
+    <input type="date" id="hiddenDateInput" onchange="syncFromCalendar(this.value)">
+    
+    <select id="yearSelect"></select>
+    <span class="date-separator">-</span>
+    <select id="monthSelect"></select>
+    <span class="date-separator">-</span>
+    <select id="daySelect"></select>
+    
+    <button class="search-btn" id="searchBtn" onclick="search()">search</button>
+  </div>
+
+  <div class="result" id="resultBox">Select a date and press search.</div>
+  <div class="image-text" id="imageOutput">사진 출력</div>
+
+  <div class="footer">
+    <a href="https://x.com/moomyoong201117?s=21" target="_blank" class="support-link">Support</a>
+  </div>
+</div>
+
+<script>
+let currentLang = "EN";
+
+function initDateSelects() {
+  const yearSelect = document.getElementById("yearSelect");
+  const monthSelect = document.getElementById("monthSelect");
+  const daySelect = document.getElementById("daySelect");
+
+  const currentYear = new Date().getFullYear();
+  for (let i = currentYear + 1; i >= 2020; i--) {
+    let opt = new Option(i, i);
+    yearSelect.add(opt);
+  }
+  yearSelect.value = currentYear;
+
+  for (let i = 1; i <= 12; i++) {
+    let val = i < 10 ? '0' + i : i;
+    monthSelect.add(new Option(val, val));
+  }
+
+  for (let i = 1; i <= 31; i++) {
+    let val = i < 10 ? '0' + i : i;
+    daySelect.add(new Option(val, val));
+  }
+}
+
+initDateSelects();
+
+function openCalendar() {
+  document.getElementById("hiddenDateInput").showPicker();
+}
+
+function syncFromCalendar(val) {
+  if(!val) return;
+  const [y, m, d] = val.split('-');
+  document.getElementById("yearSelect").value = y;
+  document.getElementById("monthSelect").value = m;
+  document.getElementById("daySelect").value = d;
+}
+
+function toggleLang() {
+  currentLang = (currentLang === "EN") ? "KO" : "EN";
+  const titleText = document.getElementById("titleText");
+  const searchBtn = document.getElementById("searchBtn");
+  const memberButtons = document.querySelectorAll(".members button");
+  const resultBox = document.getElementById("resultBox");
+
+  if (currentLang === "KO") {
+    titleText.innerText = "에스파 버블 날짜 검색기";
+    searchBtn.innerText = "검색";
+    memberButtons.forEach(btn => btn.innerText = btn.getAttribute("data-ko"));
+    if(resultBox.innerText.includes("Select a date")) resultBox.innerText = "날짜를 선택하고 검색을 누르세요.";
+  } else {
+    titleText.innerText = "aespa bubble date finder";
+    searchBtn.innerText = "search";
+    memberButtons.forEach(btn => btn.innerText = btn.getAttribute("data-en"));
+    if(resultBox.innerText.includes("날짜를 선택하고")) resultBox.innerText = "Select a date and press search.";
+  }
+}
+
+function selectMember(btn) {
+  document.querySelectorAll(".members button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function search() {
+  const y = document.getElementById("yearSelect").value;
+  const m = document.getElementById("monthSelect").value;
+  const d = document.getElementById("daySelect").value;
+  const selectedDate = `${y}-${m}-${d}`;
+  
+  const resultBox = document.getElementById("resultBox");
+  const data = {
+    "2026-05-06": "연습 피곤 새벽 🌙",
+    "2026-05-05": "밥 촬영 웃김 🎬"
+  };
+
+  const result = data[selectedDate];
+  if (result) {
+    resultBox.innerText = result;
+    document.getElementById("imageOutput").innerText = "📸 관련 사진 출력";
+  } else {
+    resultBox.innerText = currentLang === "KO" ? "데이터가 없습니다." : "No data found.";
+    document.getElementById("imageOutput").innerText = "사진 없음";
+  }
+}
+</script>
+
+</body>
+</html>
